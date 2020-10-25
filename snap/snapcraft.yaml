@@ -1,0 +1,105 @@
+name: zigbee2mqtt
+summary: Zigbee to MQTT bridge, get rid of your proprietary Zigbee bridges
+description: |
+  Allows you to use your Zigbee devices without the vendors bridge or gateway.
+  It bridges events and allows you to control your Zigbee devices via MQTT.
+  In this way you can integrate your Zigbee devices with whatever smart home
+  infrastructure you are using. See https://www.zigbee2mqtt.io/
+license: MIT
+icon: snap/gui/logo.png
+
+base: core20
+grade: stable
+confinement: strict
+adopt-info: set-version
+
+architectures:
+  - build-on: amd64
+  - build-on: armhf
+  - build-on: arm64
+
+apps:
+  zigbee2mqtt:
+    command: bin/npm start --prefix $SNAP/lib/node_modules/zigbee2mqtt
+    daemon: simple
+    restart-condition: on-failure
+    environment:
+      ZIGBEE2MQTT_CONFIG: $SNAP_DATA/configuration.yaml
+      ZIGBEE2MQTT_DATA: $SNAP_DATA
+    plugs:
+      - network
+      - serial-port
+
+parts:
+  zigbee2mqtt:
+    after: [nodejs]
+    plugin: npm
+    npm-node-version: '12.19.0'
+    source: https://github.com/Koenkk/zigbee2mqtt
+    source-type: git
+    source-tag: '1.15.0'
+    override-pull: |
+      snapcraftctl pull      
+      Z2M_GIT_TAG="$(git describe --tags --abbrev=0)"
+      echo Git tag of zigbee2mqtt is ${Z2M_GIT_TAG}
+      echo "export Z2M_GIT_TAG=${Z2M_GIT_TAG}" > /tmp/z2m-git-tag
+    build-packages:
+      - gcc
+      - build-essential
+    override-build: |
+      npm config set unsafe-perm true
+      snapcraftctl build
+    prime:
+      # remove snap irrelevant scripts
+      - -update.sh
+      - -scripts/zigbee2socat_installer.sh
+      - -scripts/install.sh
+      # remove directories irrelevant for the snap
+      - -docker/
+      - -data/
+      - -include
+      - -share
+      # remove misc build and config files
+      - -*npm-shrinkwrap.json
+      - -azure-pipelines.yaml
+      - -yarn.lock
+      # remove nodejs infos
+      - -CHANGELOG.md
+      - -LICENSE
+      - -README.md
+   
+  nodejs:
+    # TODO: shouldn't the npm plugin take care of this step?
+    plugin: dump
+    source:
+    - on amd64: https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-x64.tar.gz
+    - on arm64: https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-arm64.tar.gz
+    - on armhf: https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-armv7l.tar.gz
+    organize:
+      # move node.js specific docs to dedicated folder
+      '*.md' : nodejs/
+      LICENSE : nodejs/
+    prime:
+      # remove directories irrelevant for the snap
+      - -include
+      - -share
+
+  default-config:
+    # custom default config is shipped for the snap version
+    plugin: dump
+    source: snap/local/default
+    organize:
+      '*': default/
+
+  set-version:
+    # append the git commit number of the snap repo to the upstream tag of the zigbee2mqtt repo
+    after: [zigbee2mqtt]
+    plugin: nil
+    source: .
+    source-type: git
+    override-pull: |
+      snapcraftctl pull
+      . /tmp/z2m-git-tag
+      BUILD_VER=${Z2M_GIT_TAG}-$(git rev-list --count HEAD)
+      echo Version of zigbee2mqtt snap is set to ${BUILD_VER}
+      snapcraftctl set-version ${BUILD_VER}

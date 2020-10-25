@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+echo "Using '$SNAP_DATA' as data directory"
+
+if [ ! -f "$SNAP_DATA/configuration.yaml" ]; then
+    echo "Creating configuration file..."
+    cp $SNAP/default/configuration.yaml "$SNAP_DATA/configuration.yaml"
+fi
