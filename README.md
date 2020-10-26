@@ -4,7 +4,7 @@ Snap (Snapcraft.yaml) recipe for Zigbee2MQTT that allows you to use your Zigbee 
 
 This page will only include specific information about this unofficial snap-version of Zigbee2MQTT. For general Zigbee2MQTT information, see [zigbee2mqtt.io](https://www.zigbee2mqtt.io/)
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/zigbee2mqtt)
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/janlochi-zigbee2mqtt)
 
 ## Looking for feedback
 
