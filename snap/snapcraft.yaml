@@ -37,7 +37,7 @@ parts:
     npm-node-version: '12.20.0'
     source: https://github.com/Koenkk/zigbee2mqtt
     source-type: git
-    source-tag: '1.16.2'
+    source-tag: '1.17.0'
     override-pull: |
       snapcraftctl pull      
       Z2M_GIT_TAG="$(git describe --tags --abbrev=0)"
@@ -46,6 +46,8 @@ parts:
     build-packages:
       - gcc
       - build-essential
+    stage-packages:
+      - libatomic1
     override-build: |
       npm config set unsafe-perm true
       snapcraftctl build
