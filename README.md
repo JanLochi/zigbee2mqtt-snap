@@ -29,8 +29,8 @@ It's required to manually connect the serial port to the snap and enable the exp
 
 ```bash
 $ snap set system experimental.hotplug=true
-$ systemctl restart snapd
-$ snap connect zigbee2mqtt:serial-port core:usb20-serial
+$ systemctl restart snapd.service
+$ snap connect janlochi-zigbee2mqtt:serial-port core:usb20-serial # or snapd:usb20-serial
 ```
 
 ### Configuration
