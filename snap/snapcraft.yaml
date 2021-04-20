@@ -28,6 +28,7 @@ apps:
       ZIGBEE2MQTT_DATA: $SNAP_DATA
     plugs:
       - network
+      - network-bind
       - serial-port
 
 parts:
