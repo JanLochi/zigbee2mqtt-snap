@@ -20,7 +20,7 @@ architectures:
 
 apps:
   zigbee2mqtt:
-    command: bin/npm start --prefix $SNAP/lib/node_modules/zigbee2mqtt
+    command: bin/npm start --prefix $SNAP/app
     daemon: simple
     restart-condition: on-failure
     environment:
@@ -48,6 +48,7 @@ parts:
       - build-essential
     stage-packages:
       - libatomic1
+      - musl
     override-build: |
       # Fix some unbound variable errors from activate script (TODO: redundant?)
       set +u
@@ -71,25 +72,14 @@ parts:
       
       # copy source
       mkdir -p $SNAPCRAFT_PART_INSTALL/app
-      
+      cp -R ./* $SNAPCRAFT_PART_INSTALL/app/
     prime:
       # remove snap irrelevant scripts
-      - -update.sh
-      - -scripts/zigbee2socat_installer.sh
-      - -scripts/install.sh
+      - -app/update.sh
       # remove directories irrelevant for the snap
-      - -docker/
-      - -data/
-      - -include
-      - -share
-      # remove misc build and config files
-      - -*npm-shrinkwrap.json
-      - -azure-pipelines.yaml
-      - -yarn.lock
-      # remove nodejs infos
-      - -CHANGELOG.md
-      - -LICENSE
-      - -README.md
+      - -app/docker/
+      - -app/data/
+      - -app/test/
 
   default-config:
     # custom default config is shipped for the snap version
