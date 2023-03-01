@@ -8,7 +8,7 @@ description: |
 license: MIT
 icon: snap/gui/logo.png
 
-base: core20
+base: core22
 grade: stable
 confinement: strict
 adopt-info: set-version
@@ -20,7 +20,7 @@ architectures:
 
 apps:
   zigbee2mqtt:
-    command: bin/npm start --prefix $SNAP/lib/node_modules/zigbee2mqtt
+    command: bin/npm start --prefix $SNAP/app
     daemon: simple
     restart-condition: on-failure
     environment:
@@ -33,59 +33,50 @@ apps:
 
 parts:
   zigbee2mqtt:
-    after: [nodejs]
-    plugin: npm
-    npm-node-version: '14.18.1'
+    plugin: python
     source: https://github.com/Koenkk/zigbee2mqtt
     source-type: git
-    source-tag: '1.21.2'
+    source-tag: '1.30.1'
     override-pull: |
-      snapcraftctl pull      
+      craftctl default      
       Z2M_GIT_TAG="$(git describe --tags --abbrev=0)"
       echo Git tag of zigbee2mqtt is ${Z2M_GIT_TAG}
       echo "export Z2M_GIT_TAG=${Z2M_GIT_TAG}" > /tmp/z2m-git-tag
+    python-packages: [pip, setuptools, wheel, nodeenv]
     build-packages:
       - gcc
       - build-essential
     stage-packages:
       - libatomic1
+      - musl
     override-build: |
-      npm config set unsafe-perm true
-      snapcraftctl build
+      set +u # Fix some unbound variable errors from activate script
+
+      craftctl default
+      source $SNAPCRAFT_PART_INSTALL/bin/activate
+      nodeenv -p -n 18.14.2 
+      deactivate
+      source $SNAPCRAFT_PART_INSTALL/bin/activate
+      
+      # NPM is now ready
+      echo "NODE_PATH is: ${NODE_PATH}"
+      
+      # Install zigbee2mqtt deps:
+      npm ci
+      
+      # Build zigbee2mqtt
+      npm run build
+      
+      # copy source
+      mkdir -p $SNAPCRAFT_PART_INSTALL/app
+      cp -R ./* $SNAPCRAFT_PART_INSTALL/app/
     prime:
       # remove snap irrelevant scripts
-      - -update.sh
-      - -scripts/zigbee2socat_installer.sh
-      - -scripts/install.sh
+      - -app/update.sh
       # remove directories irrelevant for the snap
-      - -docker/
-      - -data/
-      - -include
-      - -share
-      # remove misc build and config files
-      - -*npm-shrinkwrap.json
-      - -azure-pipelines.yaml
-      - -yarn.lock
-      # remove nodejs infos
-      - -CHANGELOG.md
-      - -LICENSE
-      - -README.md
-   
-  nodejs:
-    # TODO: shouldn't the npm plugin take care of this step?
-    plugin: dump
-    source:
-    - on amd64: https://nodejs.org/dist/v14.18.1/node-v14.18.1-linux-x64.tar.gz
-    - on arm64: https://nodejs.org/dist/v14.18.1/node-v14.18.1-linux-arm64.tar.gz
-    - on armhf: https://nodejs.org/dist/v14.18.1/node-v14.18.1-linux-armv7l.tar.gz
-    organize:
-      # move node.js specific docs to dedicated folder
-      '*.md' : nodejs/
-      LICENSE : nodejs/
-    prime:
-      # remove directories irrelevant for the snap
-      - -include
-      - -share
+      - -app/docker/
+      - -app/data/
+      - -app/test/
 
   default-config:
     # custom default config is shipped for the snap version
