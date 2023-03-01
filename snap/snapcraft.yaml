@@ -77,6 +77,8 @@ parts:
       - -app/docker/
       - -app/data/
       - -app/test/
+      # lint-snap-v2_external_symlinks
+      - -app/node_modules/unix-dgram/build/node_gyp_bins/python3
 
   default-config:
     # custom default config is shipped for the snap version
