@@ -50,17 +50,11 @@ parts:
       - libatomic1
       - musl
     override-build: |
-      # Fix some unbound variable errors from activate script (TODO: redundant?)
-      set +u
-      #export _OLD_NODE_VIRTUAL_PATH=""
-      #export ZSH_VERSION=""
-      #export _OLD_NODE_VIRTUAL_PS1=""
-      #export NODE_PATH=""
-      #export NPM_CONFIG_PREFIX=""
-      
+      set +u # Fix some unbound variable errors from activate script
+
       craftctl default
       source $SNAPCRAFT_PART_INSTALL/bin/activate
-      nodeenv -p -n 16.15.0
+      nodeenv -p -n 18.14.2 
       deactivate
       source $SNAPCRAFT_PART_INSTALL/bin/activate
       
@@ -69,6 +63,9 @@ parts:
       
       # Install zigbee2mqtt deps:
       npm ci
+      
+      # Build zigbee2mqtt
+      npm run build
       
       # copy source
       mkdir -p $SNAPCRAFT_PART_INSTALL/app

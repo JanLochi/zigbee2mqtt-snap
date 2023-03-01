@@ -20,7 +20,7 @@ The snap version consists of the zigbee2mqtt release tag and an additional ascen
 Make sure you have snapd installed on your system. See [Installing snapd](https://snapcraft.io/docs/installing-snapd) for a list of distributions with and without snap pre-installed, including installation instructions for those that have not.
 
 ```bash
-$ snap install zigbee2mqtt
+$ snap install janlochi-zigbee2mqtt
 ```
 
 ### Setup
@@ -35,7 +35,7 @@ $ snap connect janlochi-zigbee2mqtt:serial-port core:usb20-serial # or snapd:usb
 
 ### Configuration
 
-The `configuration.yaml` is located in `/var/snap/zigbee2mqtt/current` and initially populated with a default configuration suitable for the snap.
+The `configuration.yaml` is located in `/var/snap/janlochi-zigbee2mqtt/current` and initially populated with a default configuration suitable for the snap.
 
 Consider using `/dev/serial/by-id/....` instead of `/dev/ttyUSB0`.
 
