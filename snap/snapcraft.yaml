@@ -36,7 +36,7 @@ parts:
     plugin: python
     source: https://github.com/Koenkk/zigbee2mqtt
     source-type: git
-    source-tag: '1.30.1'
+    source-tag: '1.30.3'
     override-pull: |
       craftctl default      
       Z2M_GIT_TAG="$(git describe --tags --abbrev=0)"
